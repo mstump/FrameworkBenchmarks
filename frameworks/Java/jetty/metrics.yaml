@@ -1,0 +1,18 @@
+# This is an example of a default good configuration for the javaagent
+jetty:
+  # endpoint: https://metrics.prod.noc.vorstella.com/api/metrics
+  # cluster_name: integration_test
+  # collection_interval: 60
+  # apikey: 00000000-0000-0000-0000-000000000000
+  validate_certs: true
+  gzip: true
+  httpReadTimeout: 60
+  start_delay: 5
+  anonymizer:
+    data_tranformer:
+      message_digest: SHA-256
+    object_name_pattern:
+      - match: keyspace
+        part: Value
+      - match: Table
+        part: Value

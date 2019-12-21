@@ -7,5 +7,7 @@ RUN mvn compile assembly:single -q -P servlet
 FROM openjdk:11.0.3-jdk-slim
 WORKDIR /jetty
 COPY run.sh run.sh
+COPY jetty-javaagent.jar jetty-javaagent.jar
+COPY metrics.yaml /etc/vorstella/metrics.yaml
 COPY --from=maven /jetty/target/jetty-example-0.1-jar-with-dependencies.jar app.jar
 CMD ["/jetty/run.sh"]
