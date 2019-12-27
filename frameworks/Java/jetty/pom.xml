@@ -88,6 +88,21 @@
                     <artifactId>jetty-io</artifactId>
                     <version>${jetty.version}</version>
                 </dependency>
+                <dependency>
+                    <groupId>com.github.vladimir-bukhtoyarov</groupId>
+                    <artifactId>gc-monitor</artifactId>
+                    <version>1.0.0-RC2</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.github.vladimir-bukhtoyarov</groupId>
+                    <artifactId>rolling-metrics-core</artifactId>
+                    <version>3.0.0-RC4</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.hdrhistogram</groupId>
+                    <artifactId>HdrHistogram</artifactId>
+                    <version>2.1.8</version>
+                </dependency>
             </dependencies>
             <build>
                 <plugins>
@@ -133,6 +148,21 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-io</artifactId>
             <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.vladimir-bukhtoyarov</groupId>
+            <artifactId>gc-monitor</artifactId>
+            <version>1.0.0-RC2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.vladimir-bukhtoyarov</groupId>
+            <artifactId>rolling-metrics-core</artifactId>
+            <version>3.0.0-RC4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hdrhistogram</groupId>
+            <artifactId>HdrHistogram</artifactId>
+            <version>2.1.8</version>
         </dependency>
     </dependencies>
 
