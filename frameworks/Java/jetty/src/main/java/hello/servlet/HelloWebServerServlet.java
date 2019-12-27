@@ -35,26 +35,33 @@ import com.codahale.metrics.jetty9.InstrumentedQueuedThreadPool;
 import io.github.gcmonitor.GcMonitor;
 import io.github.gcmonitor.integration.jmx.GcStatistics;
 
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+
+
 /**
  * An implementation of the TechEmpower benchmark tests using the Jetty web
  * server.
  */
-public final class HelloWebServerServlet
-{
+public final class HelloWebServerServlet {
     private static final MetricRegistry REGISTRY = new MetricRegistry();
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
         System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
         System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-        System.setProperty("com.vorstella.metrics", "OFF");
+        LoggerContext loggerContext = (LoggerContext)LoggerFactory.getILoggerFactory();
 
-        GcMonitor gcMonitor = GcMonitor.builder()
-                .addRollingWindow("15min", Duration.ofMinutes(15))
-                // .addRollingWindow("10min", Duration.ofMinutes(10))
-                // .addRollingWindow("5min", Duration.ofMinutes(5))
-                // .addRollingWindow("1min", Duration.ofMinutes(1))
-                .build();
+        Logger messageLogger = (Logger)loggerContext.getLogger("messages");
+        messageLogger.setLevel(Level.INFO);
+
+        Logger vorstellaLogger = (Logger)loggerContext.getLogger("com.vorstella");
+        vorstellaLogger.setLevel(Level.INFO);
+
+        GcMonitor gcMonitor = GcMonitor.builder().addRollingWindow("15min", Duration.ofMinutes(15))
+                .addRollingWindow("10min", Duration.ofMinutes(10)).addRollingWindow("5min", Duration.ofMinutes(5))
+                .addRollingWindow("1min", Duration.ofMinutes(1)).build();
         gcMonitor.start();
 
         GcStatistics monitorMbean = new GcStatistics(gcMonitor);
@@ -65,18 +72,14 @@ public final class HelloWebServerServlet
         final InstrumentedQueuedThreadPool threadPool = new InstrumentedQueuedThreadPool(REGISTRY);
         final Server server = new Server(threadPool);
 
-        ServerConnector connector = new ServerConnector(
-            server,
-            new InstrumentedConnectionFactory(
-                new HttpConnectionFactory(),
-                REGISTRY.timer("http.connection")
-            )
-        );
+        ServerConnector connector = new ServerConnector(server,
+                new InstrumentedConnectionFactory(new HttpConnectionFactory(), REGISTRY.timer("http.connection")));
 
         connector.setPort(8080);
         server.addConnector(connector);
 
-        final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SECURITY|ServletContextHandler.NO_SESSIONS);
+        final ServletContextHandler context = new ServletContextHandler(
+                ServletContextHandler.NO_SECURITY | ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/");
 
         context.addServlet(org.eclipse.jetty.servlet.DefaultServlet.class, "/");

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jetty
+  labels:
+    app: jetty
+  namespace: techempower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jetty
+  template:
+    metadata:
+      labels:
+        app: jetty
+    spec:
+      containers:
+        - name: jetty
+          image: us.gcr.io/vorstella-noc-dev/tfb.test.jetty-servlet@sha256:fc94af2ab20cff57f59f7270deef84ca76475bea7bc482b31dce5f3ee478b930
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "4.0"
+              memory: 4Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tfb-server
+  labels:
+    app: tfb-server
+  namespace: techempower
+spec:
+  selector:
+    app: jetty
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tfb-wrk
+  labels:
+    app: tfb-wrk
+  namespace: techempower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tfb-wrk
+  template:
+    metadata:
+      labels:
+        app: tfb-wrk
+    spec:
+      containers:
+        - name: tfb-wrk
+          image: us.gcr.io/vorstella-noc-dev/tfb.wrk:latest
+          command:
+            - /bin/bash
+            - /concurrency.sh
+          env:
+            - name: name
+              value: json
+            - name: url
+              value: http://tfb-server:8080/json
+            - name: accept
+              value: application/json,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7
+            - name: server_host
+              value: tfb-server
+            - name: levels
+              value: 16 32 64 128 256 512 1024
+            - name: duration
+              value: "60"
+            - name: max_concurrency
+              value: "1024"
+
+          resources:
+            limits:
+              cpu: "4.0"
+              memory: 4Gi
